@@ -1,12 +1,12 @@
 # cv-exercise
 
-cv-exercise is a computer vision-powered fitness tracking app built with Streamlit. It uses OpenCV for computer vision, YOLO for model tracking, langchain for LLM RAG and SQLite3 for data storage. The app helps users track push-ups and sit-ups while providing insights, historical data, and chatbot interaction.
+cv-exercise is a computer vision-powered fitness tracking app built with Streamlit. It uses OpenCV for computer vision, YOLO for model tracking, LangChain for LLM RAG and SQLite3 for data storage. The app helps users track push-ups and sit-ups while providing insights, historical data, and chatbot interaction.
 
 ## Features
 
 ### 1. **Main Page**
    - View your exercise stats and progress.
-   - Graph visualization of your workouts.
+   - Graph visualisation of your workouts.
    - AI-powered recommender bot provides feedback on your performance.
 
    ![Main_Page](Images/mainpage.png)
@@ -52,7 +52,12 @@ cv-exercise is a computer vision-powered fitness tracking app built with Streaml
    pip install -r requirements.txt
    ```
 
-3. Run the app:
+3. Create a `.env` file and add your OpenAI API key (if you want to use the chatbot and AI personal trainer functions):
+   ```
+   OPENAI_KEY=your_openai_api_key_here
+   ```
+
+4. Run the app:
    ```bash
    streamlit run main.py
    ```
@@ -61,10 +66,9 @@ cv-exercise is a computer vision-powered fitness tracking app built with Streaml
 - **Streamlit**: For UI and display.
 - **OpenCV**: Computer vision tracking.
 - **YOLO**: Model tracking for exercise counting.
-- **Langchain**: Use for Retrieval Augmented Generation with OpenAI.
+- **LangChain**: Used for Retrieval-Augmented Generation with OpenAI.
 - **SQLite3**: Data storage and management.
 
 ## Contributions
 Contributions are welcome! Feel free to fork the repo and submit pull requests.
-
 
