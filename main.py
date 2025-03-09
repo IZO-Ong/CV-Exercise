@@ -8,24 +8,24 @@ from langchain_community.utilities import SQLDatabase
 
 # Initialize database
 def initialize_db():
-    conn = sqlite3.connect("physio.db")
+    conn = sqlite3.connect("exercise.db")
     cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS physio_table (
+    cursor.execute('''CREATE TABLE IF NOT EXISTS exercise_table (
                         ID INTEGER PRIMARY KEY AUTOINCREMENT,
                         Datetime DATETIME,
                         Count INTEGER,
-                        Physio_Type TEXT)''')
+                        Exercise_Type TEXT)''')
     conn.commit()
     conn.close()
 
 initialize_db()
 
 def start_sql_db():
-    db = SQLDatabase.from_uri("sqlite:///physio.db")
+    db = SQLDatabase.from_uri("sqlite:///exercise.db")
     return db
 
 # Set page title and layout
-st.set_page_config(page_title="Physio Tracker", layout="wide")
+st.set_page_config(page_title="Exercise Tracker", layout="wide")
 
 # Initialize the database
 db = start_sql_db()
@@ -34,14 +34,14 @@ db = start_sql_db()
 st.sidebar.title("Filters")
 
 # Fetch data from database
-conn = sqlite3.connect("physio.db")
+conn = sqlite3.connect("exercise.db")
 cursor = conn.cursor()
-cursor.execute("SELECT * FROM physio_table ORDER BY Datetime;")
+cursor.execute("SELECT * FROM exercise_table ORDER BY Datetime;")
 data = cursor.fetchall()
 conn.close()
 
 # Define column names
-df = pd.DataFrame(data, columns=["ID", "Datetime", "Count", "Physio_Type"])
+df = pd.DataFrame(data, columns=["ID", "Datetime", "Count", "Exercise_Type"])
 
 # Check if the DataFrame is empty, and convert 'Datetime' column only if it's not empty
 if not df.empty:
@@ -58,17 +58,17 @@ if not df.empty:
     # Filter data based on date range
     df = df[(df["Datetime"] >= start_date) & (df["Datetime"] <= end_date)]
 
-    # Allow filtering by Physio Type
-    physio_types = st.sidebar.multiselect("Select Physio Types", df["Physio_Type"].unique(), default=df["Physio_Type"].unique())
+    # Allow filtering by exercise Type
+    exercise_types = st.sidebar.multiselect("Select Exercise Types", df["Exercise_Type"].unique(), default=df["Exercise_Type"].unique())
 
     # Apply filter
-    df = df[df["Physio_Type"].isin(physio_types)]
+    df = df[df["Exercise_Type"].isin(exercise_types)]
 else:
     start_date = st.sidebar.date_input("Start Date")
     end_date = st.sidebar.date_input("End Date")
 
 # --- UI Header ---
-st.markdown("<h1 style='text-align: center; color: #007BFF;'>🏋️‍♂️ Physio Exercise Tracker</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #007BFF;'>🏋️‍♂️ Exercise Tracker</h1>", unsafe_allow_html=True)
 st.write("### Track and visualise your exercise history with insights into trends over time.")
 
 # --- Display Data Table ---
@@ -82,7 +82,7 @@ if not df.empty:
     df_display["Time"] = df_display["Datetime"].dt.time
 
     # Drop ID and Datetime columns for display
-    df_display = df_display[["Date", "Time", "Count", "Physio_Type"]]
+    df_display = df_display[["Date", "Time", "Count", "Exercise_Type"]]
 
     # Display the modified DataFrame
     st.write("### 📝 Recent Exercise Records")
@@ -96,21 +96,21 @@ else:
 # --- Aggregate Data for Chart ---
 if not df.empty:
     df["Date"] = df["Datetime"].dt.date  # Create a new Date column explicitly
-    df_grouped = df.groupby(["Date", "Physio_Type"], as_index=False)["Count"].sum()
+    df_grouped = df.groupby(["Date", "Exercise_Type"], as_index=False)["Count"].sum()
 else:
-    df_grouped = pd.DataFrame(columns=["Date", "Physio_Type", "Count"])  # Create an empty DataFrame
+    df_grouped = pd.DataFrame(columns=["Date", "Exercise_Type", "Count"])  # Create an empty DataFrame
 
 # Use Altair for better visualization
 if not df_grouped.empty:
     chart = alt.Chart(df_grouped).mark_line(point=True).encode(
         x=alt.X("Date:T", title="Date"),
         y=alt.Y("Count:Q", title="Total Count"),
-        color="Physio_Type:N",
-        tooltip=["Date", "Physio_Type", "Count"]
+        color="Exercise_Type:N",
+        tooltip=["Date", "Exercise_Type", "Count"]
     ).properties(
         width=800,
         height=400,
-        title="📊 Physio Exercise Trends"
+        title="📊 Exercise Trends"
     ).interactive()
 
     st.altair_chart(chart, use_container_width=True)
@@ -120,7 +120,7 @@ if not df_grouped.empty:
     try:
         open_ai_key = os.getenv("OPENAI_KEY")
     except:
-        st.write("To use the Physio Assistant function, please include your Open AI key in a .env file")
+        st.write("To use the AI Personal Trainer, please include your Open AI key in a .env file")
     else:
         os.environ["OPENAI_API_KEY"] = open_ai_key
         llm = ChatOpenAI(model="gpt-4o", temperature=0)
@@ -130,7 +130,7 @@ if not df_grouped.empty:
 
         # Prepare the prompt to be passed to OpenAI
         prompt = f"""
-        You are a friendly physio exercise assistant. Based on the following recent exercise data, provide a brief comment and some insights:
+        You are a friendly personal trainer. Based on the following recent exercise data, provide a brief comment and some insights:
         
         Recent Exercise Records:
         {recent_exercise_data}
@@ -139,11 +139,11 @@ if not df_grouped.empty:
         """
 
         # Use OpenAI model to generate the comment
-        with st.status("💭 Physio Assistant is thinking..."):
+        with st.status("💭 AI Personal Trainer is thinking..."):
             response = llm.invoke([prompt])  # Use invoke with the prompt
 
         # Display the generated response
-        st.write("### 🗨️ Insights from Physio Assistant")
+        st.write("### 🗨️ Insights from  AI Personal Trainer")
         st.write(response.content)
 
 # --- Footer ---

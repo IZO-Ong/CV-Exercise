@@ -3,106 +3,116 @@ import sqlite3
 import random
 import os
 from datetime import datetime, timedelta
+import shutil
 
 PHOTOS_FOLDER = "Photos"  # Folder containing images
 
-# Function to insert random entries
+def add_manual_entry(exercise_type, count, datetime_str):
+    conn = sqlite3.connect("exercise.db")
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO exercise_table (Datetime, Count, exercise_Type) VALUES (?, ?, ?)",
+                   (datetime_str, count, exercise_type))
+    conn.commit()
+    conn.close()
+
 def add_random_entries(num_entries):
-    conn = sqlite3.connect("physio.db")
+    conn = sqlite3.connect("exercise.db")
     cursor = conn.cursor()
     
     for _ in range(num_entries):
-        # Generate random date/time within the last year, including microseconds
         random_days_ago = random.randint(0, 365)
-        random_time = random.randint(9 * 60, 22 * 60)  # Minutes from 9 AM to 10 PM
+        random_time = random.randint(9 * 60, 22 * 60)
         random_datetime = datetime.now() - timedelta(days=random_days_ago, minutes=random_time)
-        
-        # Format the datetime with microseconds
         formatted_datetime = random_datetime.strftime("%Y-%m-%d %H:%M:%S.%f")
-        
-        # Generate random count and type
         count = random.randint(1, 40)
-        physio_type = random.choice(["Squat", "Push Up"])
-        
-        # Insert into table with the correctly formatted datetime
-        cursor.execute("INSERT INTO physio_table (Datetime, Count, Physio_Type) VALUES (?, ?, ?)",
-                       (formatted_datetime, count, physio_type))
+        exercise_type = random.choice(["Squat", "Push Up"])
+        cursor.execute("INSERT INTO exercise_table (Datetime, Count, exercise_Type) VALUES (?, ?, ?)",
+                       (formatted_datetime, count, exercise_type))
     
     conn.commit()
     conn.close()
 
-# Function to delete all entries and images
 def delete_all_entries_and_photos():
-    # Connect to the database
-    conn = sqlite3.connect("physio.db")
+    conn = sqlite3.connect("exercise.db")
     cursor = conn.cursor()
-    
-    # Enable foreign key support
     cursor.execute("PRAGMA foreign_keys = ON;")
-
     try:
-        # Delete all records from the table
-        cursor.execute("DELETE FROM physio_table")
-        
-        # Reset the autoincrement ID (if necessary)
-        cursor.execute("DELETE FROM sqlite_sequence WHERE name='physio_table'")
-
-        # Commit changes
+        cursor.execute("DELETE FROM exercise_table")
+        cursor.execute("DELETE FROM sqlite_sequence WHERE name='exercise_table'")
         conn.commit()
+        cursor.execute("VACUUM")  # Optimize database after deletion
     except sqlite3.Error as e:
         print("Error:", e)
-        conn.rollback()  # Rollback in case of error
+        conn.rollback()
     finally:
-        # Close the connection
         conn.close()
 
-
-    # Delete all images from the "Photos" folder
     if os.path.exists(PHOTOS_FOLDER):
-        for file in os.listdir(PHOTOS_FOLDER):
-            file_path = os.path.join(PHOTOS_FOLDER, file)
-            if os.path.isfile(file_path) and file.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
-                os.remove(file_path)
+        try:
+            shutil.rmtree(PHOTOS_FOLDER)
+            os.makedirs(PHOTOS_FOLDER)  # Recreate the empty folder
+        except Exception as e:
+            print("Error deleting photos:", e)
 
-# Streamlit UI
-st.set_page_config(page_title="Physio Tracker", layout="centered")
-st.title("🏋️ Physio Tracker Dashboard")
+st.set_page_config(page_title="Exercise Tracker", layout="centered")
+st.title("🏋️ Exercise Tracker Dashboard")
 
-st.markdown("### Manage your physiotherapy records with ease!")
+st.markdown("### Manage your exercise records with ease!")
 
-# User input for adding random entries
-st.subheader("➕ Add Random Entries")
-num_entries = st.number_input("How many random entries to add?", min_value=1, max_value=1000, value=10, step=1)
+st.subheader("📝 Add Manual Entry")
+col1, col2 = st.columns(2)
+exercise_type = col1.selectbox("Exercise Type", ["Push Up", "Squat"], index=0)
+count = col2.number_input("Number of Counts", min_value=1, max_value=500, value=10, step=1)
 
-# Check if user has already clicked the button and confirmed
-if "confirm_add" not in st.session_state:
-    st.session_state.confirm_add = False
+date_selected = st.date_input("Select Date", value=datetime.today())
 
-if st.button("Generate Random Data"):
-    # Set flag to indicate the user has clicked the button for confirmation
-    st.session_state.confirm_add = True
-    st.error("⚠️ Are you sure you want to add these records?")
-    
-if st.session_state.confirm_add:
-    if st.button("Yes, add the records"):
-        add_random_entries(num_entries)
-        st.session_state.confirm_add = False  # Reset flag after action
-        st.success(f"✅ {num_entries} random entries added successfully!")
+if "time_selected" not in st.session_state:
+    st.session_state.time_selected = datetime.now().time()
 
-# Divider
+time_selected = st.time_input("Select Time", value=st.session_state.time_selected)
+st.session_state.time_selected = time_selected
+
+selected_datetime = datetime.combine(date_selected, time_selected).strftime("%Y-%m-%d %H:%M:%S.%f")
+
+if st.button("➕ Add Entry", use_container_width=True):
+    add_manual_entry(exercise_type, count, selected_datetime)
+    st.success(f"✅ Added: {exercise_type} - {count} counts on {selected_datetime}")
+
 st.markdown("---")
 
-# Button to delete all entries and photos
+st.subheader("➕ Add Random Entries")
+if "confirm_random" not in st.session_state:
+    st.session_state.confirm_random = False
+if "random_success" not in st.session_state:
+    st.session_state.random_success = False
+
+num_entries = st.slider("Number of Random Entries", min_value=1, max_value=100, value=10)
+if st.button("Generate Random Data", use_container_width=True):
+    st.session_state.confirm_random = True
+
+if st.session_state.get("confirm_random", False):
+    if st.button("Yes, generate random data"):
+        add_random_entries(num_entries)
+        st.session_state.random_success = True
+        st.session_state.confirm_random = False
+
+if st.session_state.random_success:
+    st.success(f"✅ {num_entries} random entries added successfully!")
+
+st.markdown("---")
+
 st.subheader("❌ Delete All Entries & Photos")
-if "confirm_delete" not in st.session_state:
-    st.session_state.confirm_delete = False
+if "delete_success" not in st.session_state:
+    st.session_state.delete_success = False
 
-if st.button("Delete All Data and Photos", key="delete_data"):
+if st.button("Delete All Data and Photos", use_container_width=True, key="delete_data"):
     st.session_state.confirm_delete = True
-    st.error("⚠️ This will delete all records and photos permanently. Are you sure?")
 
-if st.session_state.confirm_delete:
+if st.session_state.get("confirm_delete", False):
     if st.button("Yes, delete everything"):
         delete_all_entries_and_photos()
-        st.session_state.confirm_delete = False  # Reset flag after action
-        st.warning("🗑️ All records and photos deleted successfully!")
+        st.session_state.delete_success = True
+        st.session_state.confirm_delete = False
+
+if st.session_state.delete_success:
+    st.warning("🗑️ All records and photos deleted successfully!")

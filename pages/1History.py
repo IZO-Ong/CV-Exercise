@@ -10,8 +10,8 @@ st.set_page_config(page_title="Exercise History", layout="wide")
 # Database connection function
 def fetch_data(filters):
     """Fetches filtered exercise data from the database."""
-    conn = sqlite3.connect("physio.db")
-    query = "SELECT * FROM physio_table WHERE 1=1"
+    conn = sqlite3.connect("exercise.db")
+    query = "SELECT * FROM exercise_table WHERE 1=1"
     params = []
     
     # Apply filters
@@ -24,7 +24,7 @@ def fetch_data(filters):
         params.append(filters["end_date"])
     
     if filters["exercise_type"]:
-        query += " AND Physio_Type = ?"
+        query += " AND Exercise_Type = ?"
         params.append(filters["exercise_type"])
     
     if filters["exercise_id"]:
@@ -40,12 +40,12 @@ def fetch_data(filters):
 
 def delete_data(filters):
     """Deletes exercise data and associated photos based on filters."""
-    conn = sqlite3.connect("physio.db")
+    conn = sqlite3.connect("exercise.db")
     cursor = conn.cursor()
     
     # Fetch IDs of records to delete (to remove associated photos)
-    select_query = "SELECT ID FROM physio_table WHERE 1=1"
-    delete_query = "DELETE FROM physio_table WHERE 1=1"
+    select_query = "SELECT ID FROM exercise_table WHERE 1=1"
+    delete_query = "DELETE FROM exercise_table WHERE 1=1"
     params = []
 
     if filters["start_date"]:
@@ -59,8 +59,8 @@ def delete_data(filters):
         params.append(filters["end_date"])
     
     if filters["exercise_type"]:
-        select_query += " AND Physio_Type = ?"
-        delete_query += " AND Physio_Type = ?"
+        select_query += " AND exercise_Type = ?"
+        delete_query += " AND exercise_Type = ?"
         params.append(filters["exercise_type"])
     
     if filters["exercise_id"]:
@@ -128,18 +128,20 @@ if not df.empty:
 
     # Display Data
     st.write("### 📝 Exercise Records Found")
-    st.dataframe(df[["ID", "Date", "Time", "Count", "Physio_Type"]], height=300, use_container_width=True, hide_index=True)
+    st.dataframe(df[["ID", "Date", "Time", "Count", "Exercise_Type"]], height=300, use_container_width=True, hide_index=True)
 
     # Show images (if available)
     st.write("### 📸 Exercise Photos")
 
     photo_found = False  # Flag to check if at least one photo exists
 
-    for exercise_id in df["ID"]:  # Loop through all IDs in the filtered dataframe
+    for exercise_id in df["ID"]:
         photo_path = os.path.join("Photos", f"{exercise_id}.jpg")
         if os.path.exists(photo_path):
-            st.image(photo_path, caption=f"Exercise ID: {exercise_id}", use_column_width=True)
-            photo_found = True  # Set flag to True if at least one photo is found
+            col1, col2, col3 = st.columns([1, 2, 1])  # Creates three columns
+            with col2:  # Use the middle column
+                st.image(photo_path, caption=f"Exercise ID: {exercise_id}", width=1000)
+            photo_found = True
 
     # If no photos were found, show a single message
     if not photo_found:

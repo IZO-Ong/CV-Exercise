@@ -13,11 +13,11 @@ keypoints_dict = {"squat": [5, 11, 13], "pushup": [5, 7, 9]}
 
 def save_workout(count, workout_type):
     """Save workout data to the database."""
-    conn = sqlite3.connect("physio.db")
+    conn = sqlite3.connect("exercise.db")
     cursor = conn.cursor()
     now = datetime.datetime.now()
     cursor.execute(
-        "INSERT INTO physio_table (datetime, count, physio_type) VALUES (?, ?, ?)",
+        "INSERT INTO exercise_table (datetime, count, exercise_type) VALUES (?, ?, ?)",
         (now, count, workout_type)
     )
     session_id = cursor.lastrowid  # Get session ID

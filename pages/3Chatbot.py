@@ -20,7 +20,7 @@ from langchain.chains import create_sql_query_chain
 from langchain_community.tools import QuerySQLDatabaseTool
 
 load_dotenv()
-db = SQLDatabase.from_uri("sqlite:///physio.db")
+db = SQLDatabase.from_uri("sqlite:///exercise.db")
 
 try:
     open_ai_key = os.getenv("OPENAI_KEY")
@@ -37,59 +37,59 @@ else:
     examples = [
         {
             "input": "List all exercise entries.", 
-            "query": "SELECT * FROM physio_table;"
+            "query": "SELECT * FROM exercise_table;"
         },
         {
             "input": "Find all exercise entries on '2024-05-02'.",
-            "query": "SELECT * FROM physio_table WHERE DATE(Datetime) = '2024-05-02';",
+            "query": "SELECT * FROM exercise_table WHERE DATE(Datetime) = '2024-05-02';",
         },
         {
             "input": "List all entries where the exercise count is more than 50.",
-            "query": "SELECT * FROM physio_table WHERE count > 50;",
+            "query": "SELECT * FROM exercise_table WHERE count > 50;",
         },
         {
             "input": "Find the total number of exercises performed on '2024-05-01'.",
-            "query": "SELECT SUM(count) FROM physio_table WHERE DATE(Datetime) = '2024-05-01';",
+            "query": "SELECT SUM(count) FROM exercise_table WHERE DATE(Datetime) = '2024-05-01';",
         },
         {
             "input": "List all exercise entries where the type is 'Squat'.",
-            "query": "SELECT * FROM physio_table WHERE physio_type = 'Squat';",
+            "query": "SELECT * FROM exercise_table WHERE exercise_type = 'Squat';",
         },
         {
             "input": "How many exercise entries are there in total?",
-            "query": "SELECT COUNT(*) FROM physio_table;",
+            "query": "SELECT COUNT(*) FROM exercise_table;",
         },
         {
             "input": "Find the entry with the highest number of exercises recorded.",
-            "query": "SELECT * FROM physio_table ORDER BY count DESC LIMIT 1;",
+            "query": "SELECT * FROM exercise_table ORDER BY count DESC LIMIT 1;",
         },
         {
             "input": "List all exercise entries from March 2024.",
-            "query": "SELECT * FROM physio_table WHERE strftime('%Y-%m', Datetime) = '2024-03';",
+            "query": "SELECT * FROM exercise_table WHERE strftime('%Y-%m', Datetime) = '2024-03';",
         },
         {
             "input": "Find the average number of exercises performed across all entries.",
-            "query": "SELECT AVG(count) FROM physio_table;",
+            "query": "SELECT AVG(count) FROM exercise_table;",
         },
         {
             "input": "How many unique exercise types are recorded?",
-            "query": "SELECT COUNT(DISTINCT physio_type) FROM physio_table;",
+            "query": "SELECT COUNT(DISTINCT exercise_type) FROM exercise_table;",
         },
         {
             "input": "Find the earliest recorded exercise entry.",
-            "query": "SELECT * FROM physio_table ORDER BY Datetime ASC LIMIT 1;",
+            "query": "SELECT * FROM exercise_table ORDER BY Datetime ASC LIMIT 1;",
         },
         {
             "input": "List all exercise entries on '2024-03-05' where more than 40 reps were performed.",
-            "query": "SELECT * FROM physio_table WHERE DATE(Datetime) = '2024-03-05' AND count > 40;", 
+            "query": "SELECT * FROM exercise_table WHERE DATE(Datetime) = '2024-03-05' AND count > 40;", 
         },
         {
             "input": "How many times did I do push-ups in 2024?",
-            "query": "SELECT COUNT(*) FROM physio_table WHERE physio_type = 'Push Up' AND strftime('%Y', Datetime) = '2024';", 
+            "query": "SELECT COUNT(*) FROM exercise_table WHERE exercise_type = 'Push Up' AND strftime('%Y', Datetime) = '2024';", 
         },
         {
             "input": "Can you create a bar chart of the total exercises performed per day for May 2024?",
-            "query": "SELECT DATE(Datetime) AS date, SUM(count) AS total_exercises FROM physio_table WHERE strftime('%Y-%m', Datetime) = '2024-05' GROUP BY DATE(Datetime) ORDER BY DATE(Datetime);", 
+            "query": "SELECT DATE(Datetime) AS date, SUM(count) AS total_exercises FROM exercise_table WHERE strftime('%Y-%m', Datetime) = '2024-05' GROUP BY DATE(Datetime) ORDER BY DATE(Datetime);", 
         }
     ]
 
@@ -137,13 +137,13 @@ else:
 
     class QueryInput(BaseModel):
         query: str = Field(description="""a natural language question that requires a sql query to be 
-                        run against the physio_table table, must be the exact same
+                        run against the exercise_table table, must be the exact same
                             as the user's original question. DO NOT MODIFY IT""")
 
     @tool("sql_query_db_tool", args_schema=QueryInput)
     def sql_query_db_tool(query):
         """Accepts only one input string that contains the user's natural language question and runs a query against on the
-        physio_db and returns a natural language reponse. The question should be the exact same as that as the user's original question.
+        exercise_db and returns a natural language reponse. The question should be the exact same as that as the user's original question.
         """
         return sql_chain.invoke({"question": query})
 
@@ -321,7 +321,7 @@ else:
             (
                 "system",
                 """You are very powerful assistant chatbot to help people exercise healthier. You have access to tools
-                to query a user's exercise database named physio_table and to turn that data into a visualisation chart. When using sql_query_tool_db, DO NOT MODIFY THE ORIGINAL QUESTION.
+                to query a user's exercise database named exercise_table and to turn that data into a visualisation chart. When using sql_query_tool_db, DO NOT MODIFY THE ORIGINAL QUESTION.
                 If the user fails to specify a specific time frame for data visualisation, the default time frame would be per day. For instance,
                 'Create a line chart of the number of squats I did in 2024' should be reformatted to 'Create a line chart of the number of squats I did in 2024 per day'
                 before being passed to sql_query_db_tool. If the user wants to create a data visualisation chart, run sql_query_tool_db first to get

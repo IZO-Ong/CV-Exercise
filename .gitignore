@@ -1,3 +1,4 @@
 .env
-physio.db
+exercise.db
 dir_to_ignore/Photos
+Photos/
