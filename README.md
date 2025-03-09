@@ -9,35 +9,35 @@ cv-exercise is a computer vision-powered fitness tracking app built with Streaml
    - Graph visualization of your workouts.
    - AI-powered recommender bot provides feedback on your performance.
 
-   ![Main_Page](images/mainpage.png)
+   ![Main_Page](Images/mainpage.png)
 
 ### 2. **History Page**
    - Search for specific exercise entries.
    - View photos of past workout sessions.
    - Option to delete selected entries.
 
-   ![History_Page](images/historypage.png)
+   ![History_Page](Images/historypage.png)
 
 ### 3. **Tracker Page**
    - Log push-up or squat sessions.
    - The model tracks and counts repetitions in real-time.
    - Saves session photos for reference.
 
-   ![Tracker_Page](images/trackerpage.png)
-   ![Tracker](images/tracker.png)
+   ![Tracker_Page](Images/trackerpage.png)
+   ![Tracker](Images/tracker.png)
 
 ### 4. **Chatbot Page**
    - Interactive chatbot to answer questions about your exercise history.
    - Provides general exercise advice.
 
-   ![ChatBot](images/chatbot.png)
+   ![ChatBot](Images/chatbot.png)
 
 ### 5. **Database Page**
    - Manually log workout entries.
    - Generate random data entries (for testing and development).
    - Delete entries if needed.
 
-   ![Database](images/database.png)
+   ![Database](Images/database.png)
 
 ## Installation
 
