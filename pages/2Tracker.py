@@ -9,7 +9,7 @@ from ultralytics import solutions, YOLO
 model = YOLO("yolo11n-pose.pt")
 
 # Define keypoints for different exercises
-keypoints_dict = {"squat": [5, 11, 13], "pushup": [5, 7, 9]}
+keypoints_dict = {"Squat": [5, 11, 13], "Push Up": [5, 7, 9]}
 
 def save_workout(count, workout_type):
     """Save workout data to the database."""
@@ -94,18 +94,18 @@ def main():
     col1, col2 = st.columns(2)
     with col1:
         if st.button("🏋️ Start Squat Workout"):
-            start_workout("squat")
+            start_workout("Squat")
     with col2:
-        if st.button("💪 Start Pushup Workout"):
-            start_workout("pushup")
+        if st.button("💪 Start Push Up Workout"):
+            start_workout("Push Up")
     
     if st.session_state.workout_count > 0:
-        st.success(f"🏆 Total {st.session_state.workout_type.capitalize()}s: {st.session_state.workout_count}")
+        st.success(f"🏆 Total {st.session_state.workout_type.title()}s: {st.session_state.workout_count}")
         
         if st.button("Save Workout"):
             session_id = save_workout(
                 st.session_state.workout_count,
-                st.session_state.workout_type.capitalize()
+                st.session_state.workout_type.title()
             )
             st.session_state.data_saved = True
             st.write("✅ Workout data saved!")

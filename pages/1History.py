@@ -140,7 +140,7 @@ if not df.empty:
         if os.path.exists(photo_path):
             col1, col2, col3 = st.columns([1, 2, 1])  # Creates three columns
             with col2:  # Use the middle column
-                st.image(photo_path, caption=f"Exercise ID: {exercise_id}", width=1000)
+                st.image(photo_path, caption=f"Exercise ID: {exercise_id}", width=600)
             photo_found = True
 
     # If no photos were found, show a single message

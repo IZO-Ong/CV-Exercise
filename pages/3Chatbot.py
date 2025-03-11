@@ -151,7 +151,7 @@ else:
         data: str = Field(description="should be a string that contains data as a list of lists")
         graph: str = Field(description= "it must include what type of graph to be produced, \
                         for instance bar graph, line graph etc")
-        columns: str = Field(description="should be a string resembling a list format containing the columns that corresponds to the index of the data eg. '[time, protein, fat]'")
+        columns: str = Field(description="should be a string resembling a list format containing the columns that corresponds to the index of the data eg. '[Date, Squats, Push Up]'")
         
         
     @tool("data-visualisation-tool", args_schema=DataInput)
@@ -353,10 +353,6 @@ else:
         tools=tools
     )
 
-    import streamlit as st
-
-    st.set_page_config(page_title="ChatBot", layout="centered")
-
     st.title("💬 ChatBot")
     st.write("Ask any question related to your exercise history!")
 
@@ -390,4 +386,3 @@ else:
         # Display bot response
         with st.chat_message("assistant"):
             st.write(response)
-        
