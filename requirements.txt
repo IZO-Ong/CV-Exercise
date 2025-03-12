@@ -16,11 +16,11 @@ seaborn>=0.11.0
 ultralytics-thop>=2.0.0
 ultralytics
 streamlit
-sqlite3
-cv2
+opencv-python
 python-dotenv
 altair
 langchain
 langchain-openai
 langchain-community
 faiss-cpu
+shapely>=2.0.0
