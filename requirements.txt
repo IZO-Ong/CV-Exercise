@@ -1,5 +1,6 @@
 altair
 faiss-cpu
+lap
 langchain
 langchain-openai
 langchain-community
