@@ -1,12 +1,12 @@
-# cv-exercise
+# VisionFit
 
-cv-exercise is a computer vision-powered fitness tracking app built with Streamlit. It uses OpenCV for computer vision, YOLO for model tracking, LangChain for LLM RAG and SQLite3 for data storage. The app helps users track push-ups and sit-ups while providing insights, historical data, and chatbot interaction.
+VisionFit is a hackathon project—a computer vision-powered fitness tracking app built with Streamlit. It uses OpenCV for computer vision, YOLO for exercise tracking, LangChain for LLM RAG, and SQLite3 for data storage. The app helps users track push-ups and sit-ups while providing insights, historical data, and chatbot interaction.
 
 ## Features
 
 ### 1. **Main Page**
    - View your exercise stats and progress.
-   - Graph visualisation of your workouts.
+   - Graph visualization of your workouts.
    - AI-powered recommender bot provides feedback on your performance.
 
    ![Main_Page](Images/mainpage.png)
@@ -43,8 +43,8 @@ cv-exercise is a computer vision-powered fitness tracking app built with Streaml
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/cv-exercise.git
-   cd cv-exercise
+   git clone https://github.com/your-username/visionfit.git
+   cd visionfit
    ```
 
 2. Install dependencies:
@@ -68,7 +68,4 @@ cv-exercise is a computer vision-powered fitness tracking app built with Streaml
 - **YOLO**: Model tracking for exercise counting.
 - **LangChain**: Used for Retrieval-Augmented Generation with OpenAI.
 - **SQLite3**: Data storage and management.
-
-## Contributions
-Contributions are welcome! Feel free to fork the repo and submit pull requests.
 
