@@ -25,7 +25,14 @@ def start_sql_db():
     return db
 
 # Set page title and layout
-st.set_page_config(page_title="Exercise Tracker", layout="wide")
+st.set_page_config(page_title="VisionFit: Smart Exercise Tracker", layout="wide")
+
+# --- UI Header ---
+st.markdown("<h1 style='text-align: center; color: #007BFF;'>VisionFit: Smart Exercise Tracker</h1>", unsafe_allow_html=True)
+st.markdown(
+    "<h3 style='text-align: center;'>Track and visualise your exercise history with insights into trends over time.</h3>", 
+    unsafe_allow_html=True
+)
 
 # Initialize the database
 db = start_sql_db()
@@ -72,7 +79,7 @@ else:
 
 # --- Display Data Table ---
 if not df.empty:
-    df_display = df.sort_values(by="Datetime", ascending=False).head(5)
+    df_display = df.sort_values(by="Datetime", ascending=False).head(6)
     df_display["Date"] = df_display["Datetime"].dt.date
     df_display["Time"] = df_display["Datetime"].dt.time
     df_display = df_display[["Date", "Time", "Count", "Exercise_Type"]]
@@ -103,6 +110,37 @@ if not df.empty:
         title="📊 Exercise Trends"
     ).interactive()
     st.altair_chart(chart, use_container_width=True)
+    
+if not df_grouped.empty:
+    # Set up OpenAI API key and model
+    try:
+        open_ai_key = os.getenv("OPENAI_KEY")
+    except:
+        st.write("To use the AI Personal Trainer, please include your Open AI key in a .env file")
+    else:
+        os.environ["OPENAI_API_KEY"] = open_ai_key
+        llm = ChatOpenAI(model="gpt-4o", temperature=0)
+
+        # Convert recent exercise data to a dictionary format
+        recent_exercise_data = df_display.to_dict(orient="records")
+
+        # Prepare the prompt to be passed to OpenAI
+        prompt = f"""
+        You are a friendly personal trainer. Based on the following recent exercise data, provide a brief comment and some insights:
+        
+        Recent Exercise Records:
+        {recent_exercise_data}
+
+        Provide the user with helpful and friendly comments on their exercise history. You can mention patterns, improvements, or trends.
+        """
+
+        # Use OpenAI model to generate the comment
+        with st.status("💭 AI Personal Trainer is thinking..."):
+            response = llm.invoke([prompt])  # Use invoke with the prompt
+
+        # Display the generated response
+        st.write("### 🗨️ Insights from  AI Personal Trainer")
+        st.write(response.content)
 
 # --- Footer ---
 st.markdown("""
