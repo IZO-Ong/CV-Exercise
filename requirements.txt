@@ -16,10 +16,9 @@ requests>=2.23.0
 scipy>=1.4.1
 shapely>=2.0.0
 torch>=1.8.0
-torch>=1.8.0,!=2.4.0; sys_platform == 'win32'
 torchvision>=0.9.0
 tqdm>=4.64.0
 seaborn>=0.11.0
 streamlit
-ultralytics
-ultralytics-thop>=2.0.0
+ultralytics==8.3.82
+ultralytics-thop==2.0.14
